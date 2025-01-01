@@ -1,7 +1,7 @@
-from .models import BRC
+from .models import Barcode
 from rest_framework import serializers
 
 class BarcodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BRC
+        model = Barcode
         fields = '__all__'

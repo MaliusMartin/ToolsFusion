@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import barcode
 from barcode.writer import ImageWriter
-from .models import BRC
+from .models import Barcode
 
 @csrf_exempt
 def generate_barcode(request):
@@ -21,7 +21,7 @@ def generate_barcode(request):
             writer = ImageWriter()  # Generates the barcode as an image
             barcode_instance = barcode_format(data, writer=writer)
             barcode_instance.write(buffer)
-            BRC.objects.create(data=data)
+            Barcode.objects.create(data=data)
             # Prepare response
             buffer.seek(0)
             return HttpResponse(buffer, content_type="image/png")

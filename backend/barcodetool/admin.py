@@ -1,11 +1,8 @@
 from django.contrib import admin
+from .models import Barcode
 
-# Register your models here.
-from .models import BRC
-
-class BRCodeAdmin(admin.ModelAdmin):
-    list_display = ('data', 'created_at')
-    search_fields = ('data', 'created_at')
-    list_filter = ('created_at',)
-
-admin.site.register(BRC)
+@admin.register(Barcode)
+class BarcodeAdmin(admin.ModelAdmin):
+    list_display = ('data', 'barcode_type', 'created_at')
+    search_fields = ('data',)
+    list_filter = ('barcode_type', 'created_at')

@@ -24,6 +24,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'qrcodetool',
     'barcodetool',
+    'scanqrbar',
     'rest_framework',
     'corsheaders',
 
