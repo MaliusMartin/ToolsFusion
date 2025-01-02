@@ -1,8 +1,8 @@
-services:
+chservices:
   - type: web
-    name: your-service-name
+    name: toolsfusion
     env: python
     buildCommand: 
       apt-get update && apt-get install -y zbar-tools && pip install -r requirements.txt
-    startCommand: gunicorn your_project_name.wsgi
+    startCommand: gunicorn TFProject.wsgi:application --bind
     ...
