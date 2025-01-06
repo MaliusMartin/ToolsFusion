@@ -16,13 +16,15 @@ SECRET_KEY = 'django-insecure-n9!(lnyf-2%0-(&wg_jm_4n($%q8wda=#bp94vn0x_+pc9gr+=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['toolsfusion.onrender.com',
+ALLOWED_HOSTS = ['127.0.0.1',
+                 'toolsfusion.onrender.com',
                  'localhost',]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'word2pdf',
     'qrcodetool',
     'barcodetool',
     'scanqrbar',
@@ -126,3 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
