@@ -1,4 +1,8 @@
-// import ToolFusionLogo  from "../assets/images/ToolFusionLogo.png";
-// import icon  from "../assets/images/icon.png";
+import ToolFusionLogo from "../assets/images/ToolFusionLogo.png";
 
-// export default {icon, ToolFusionLogo};
+
+
+export default {
+ ToolFusionLogo
+
+};
