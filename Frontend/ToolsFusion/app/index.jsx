@@ -17,6 +17,7 @@ export default function Index() {
           <Image 
             source={icons.logo} 
             style={{ width: 300, height: 200 }} 
+            tintColor={"#fff"}
             resizeMode="contain" 
             accessibilityLabel="Camera Icon"
           />

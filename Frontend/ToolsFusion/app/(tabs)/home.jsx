@@ -7,7 +7,7 @@ import CustomButton from "../../components/CustomButton";
 const Home = () => {
   const actions = [
     { title: "Scan QR Code", route: "/(tabs)/scan" },
-    { title: "Scan Barcode", route: "/(tabs)/scan" },
+    { title: "Scan Barcode", route: "scan/index" },
     { title: "Generate QR Code", route: "/(tabs)/generate" },
     { title: "Generate Barcode", route: "/(tabs)/generate" },
   ];
@@ -23,6 +23,7 @@ const Home = () => {
           <Image
             source={icons.logo}
             style={{ width: 300, height: 200 }}
+            tintColor={"#fff"}
             resizeMode="contain"
             alt="App Logo"
           />
