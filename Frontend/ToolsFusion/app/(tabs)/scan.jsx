@@ -1,20 +1,13 @@
 import { CameraView } from "expo-camera";
 import { Stack } from "expo-router";
-import {
-  AppState,
-  SafeAreaView,
-  StyleSheet,
-  Platform,
-  View,
-  Text,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
+import {AppState,SafeAreaView,StyleSheet,View,Image,Text,TouchableOpacity, Linking,} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useState, useRef, useEffect } from "react";
 import * as Sharing from 'expo-sharing';
 import * as Clipboard from 'expo-clipboard'; 
 import Overlay from "../(scan)/overlay";
+import icons from "../../constants/icons";
+import { Share } from "react-native";
 
 const Scan = () => {
   const qrLock = useRef(false);
@@ -51,14 +44,17 @@ const Scan = () => {
 
   const handleShare = async (data) => {
     try {
-      await Sharing.shareAsync({
-        uri: data, // Share the scanned data directly as a URI
-        dialogTitle: 'Share scanned data',
+      await Share.share({
+        message: data,
+        title: "Share QR Code Link"
       });
     } catch (error) {
-      console.error("Failed to share:", error);
+      console.error("Error sharing link:", error);
+      Alert.alert("Error", "Failed to share the link. Please try again.");
     }
   };
+
+ 
 
   const handleCopy = async (data) => {
     try {
@@ -66,6 +62,18 @@ const Scan = () => {
       // Optional: Show a brief toast or message indicating successful copy
     } catch (error) {
       console.error("Failed to copy:", error);
+    }
+  };
+
+  const handleSearch = async (data) => {
+    try {
+      await Linking.openURL(`https://www.google.com/search?q=${data}`);
+      setScannedData(null);
+      qrLock.current = false;
+    } catch (err) {
+      console.error("Failed to open URL:", err);
+      setScannedData(null);
+      qrLock.current = false;
     }
   };
 
@@ -102,7 +110,7 @@ const Scan = () => {
       
       {/* Enhanced Link Overlay */}
       {scannedData && (
-        <View style={styles.overlayContainer}>
+        <View style={styles.overlayContainer} className="font-pregular">
           <View style={styles.linkCard}>
             <Text style={styles.linkText} numberOfLines={3}>
               {scannedData}
@@ -112,6 +120,7 @@ const Scan = () => {
                 style={[styles.button, styles.primaryButton]}
                 onPress={() => handleOpenURL(scannedData)}
               >
+                <Image source={icons.link} style={{ width: 20, height: 20 }} />
                 <Text style={styles.buttonText}>Open</Text>
               </TouchableOpacity>
               
@@ -119,6 +128,7 @@ const Scan = () => {
                 style={[styles.button, styles.shareButton]}
                 onPress={() => handleShare(scannedData)}
               >
+              <Image source={icons.share} style={{ width: 20, height: 20 }} />
                 <Text style={styles.buttonText}>Share</Text>
               </TouchableOpacity>
 
@@ -126,7 +136,16 @@ const Scan = () => {
                 style={[styles.button, styles.copyButton]}
                 onPress={() => handleCopy(scannedData)}
               >
+                <Image source={icons.copy} style={{ width: 20, height: 20 }} />
                 <Text style={styles.buttonText}>Copy</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, styles.copyButton]}
+                onPress={() => handleSearch(scannedData)}
+              >
+                <Image source={icons.search} style={{ width: 20, height: 20 }} />
+                <Text style={styles.buttonText}>Search</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -136,6 +155,7 @@ const Scan = () => {
                   qrLock.current = false;
                 }}
               >
+                <Image source={icons.closed} style={{ width: 20, height: 20 }} />
                 <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
               </TouchableOpacity>
             </View>

@@ -3,13 +3,15 @@ import React from 'react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar';
 
-const ScanLayot = () => {
+const ScanLayout = () => {
   return (
     <>
     <Stack>
     < Stack.Screen name="index" options = {{headerShown: false}} />
 
     < Stack.Screen name="overlay" options = {{headerShown: false}} />
+
+    < Stack.Screen name="uploaded" options = {{headerShown: false}} />
 
 
     </Stack>
@@ -19,4 +21,4 @@ const ScanLayot = () => {
   )
 }
 
-export default ScanLayot
+export default ScanLayout

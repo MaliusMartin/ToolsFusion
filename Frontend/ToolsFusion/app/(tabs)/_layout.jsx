@@ -27,6 +27,7 @@ const TabIcon = ({ icon, color, name, focused }) => (
 const Tabslayout = () => {
   return (
     <>
+    
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: "#3C9EEA", //14a21f
@@ -34,6 +35,7 @@ const Tabslayout = () => {
           tabBarShowLabel: true,
           tabBarStyle: {
             backgroundColor: "#161622",
+            font: "psemibold",
             borderTopWidth: 1,
             borderTopColor: "#232533",
             height: 55, // Adjust the height as needed
@@ -42,6 +44,23 @@ const Tabslayout = () => {
       >
 
        
+<Tabs.Screen
+          name='home'
+          options={{
+            title: "Home",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              
+              <TabIcon
+                icon={icons.home}
+                color={color}
+                name="Home"
+                focused={focused}
+              />
+            )
+          }}
+        />
+
 
 
         <Tabs.Screen
@@ -78,22 +97,7 @@ const Tabslayout = () => {
           }}
         />
 
-<Tabs.Screen
-          name='home'
-          options={{
-            title: "Home",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              
-              <TabIcon
-                icon={icons.home}
-                color={color}
-                name="Home"
-                focused={focused}
-              />
-            )
-          }}
-        />
+
         <Tabs.Screen
           name='scan'
           options={{

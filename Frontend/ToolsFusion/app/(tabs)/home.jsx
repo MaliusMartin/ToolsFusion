@@ -7,9 +7,9 @@ import CustomButton from "../../components/CustomButton";
 const Home = () => {
   const actions = [
     { title: "Scan QR Code", route: "/(tabs)/scan" },
-    { title: "Scan Barcode", route: "scan/index" },
+    { title: "Scan Barcode", route: "/(scan)/uploaded" },
     { title: "Generate QR Code", route: "/(tabs)/generate" },
-    { title: "Generate Barcode", route: "/(tabs)/generate" },
+    { title: "Generate Barcode", route:"/(generate)/gindex" },
   ];
 
   return (
@@ -53,8 +53,8 @@ const Home = () => {
         </View>
 
         {/* Footer */}
-        <View className="items-center mt-auto mb-4">
-          <Text className="text-white text-xs font-plight">
+        <View className="items-center mt-auto mb-2">
+          <Text className="text-white text-sm font-plight">
             Powered by Buda Technologies
           </Text>
         </View>

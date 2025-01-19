@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Picker } from "@react-native-picker/picker";
-import axios from "axios";
 import * as Print from "expo-print";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import * as Calendar from 'expo-calendar';
+
 
 import { 
   View, 
@@ -21,42 +22,84 @@ import {
 } from "react-native";
 
 
-const Generate = () => {
-  const [barcodeType, setBarcodeType] = useState("ean13");
-  const [inputValue, setInputValue] = useState("");
-  const [inputBar, setInputBar] = useState("");
+const CalendarPage = () => {
+
+  const [event, setEvent] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+
+
   const [qrCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [qrCodeImage, setQRCodeImage] = useState(null);
   const [isSubmittingQR, setIsSubmittingQR] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+ const [calendars, setCalendars] = useState([]);
+const [selectedCalendarId, setSelectedCalendarId] = useState(null);
 
-  const barcodeOptions = [
-    { value: "aztech", label: "AZTEC" },
-    { value: "ean13", label: "EAN-13" },
-    { value: "ean8", label: "EAN-8" },
-    { value: "upc_a", label: "UPC-A" },
-    { value: "upc_e", label: "UPC-E" },
-    { value: "code39", label: "Code 39" },
-    { value: "code93", label: "Code 93" },
-    { value: "code128", label: "Code 128" },
-    { value: "itf", label: "ITF" },
-    { value: "isbn10", label: "ISBN-10" },
-    { value: "isbn13", label: "ISBN-13" },
-    { value: "issn", label: "ISSN" },
-    { value: "msi", label: "MSI" },
-    { value: "pharmacode", label: "Pharmacode" },
-    { value: "codabar", label: "Codabar" },
-    { value: "data_matrix", label: "Data Matrix" },
-  ];
+
+// Add this useEffect to load calendars
+useEffect(() => {
+  (async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === "granted") {
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      setCalendars(calendars.filter(calendar => calendar.allowsModifications));
+      // Set default calendar if available
+      if (calendars.length > 0) {
+        const primaryCalendar = calendars.find(cal => cal.isPrimary) || calendars[0];
+        setSelectedCalendarId(primaryCalendar.id);
+      }
+    }
+  })();
+}, []);
+ 
+  
+// Add this function to handle event creation
+const handleCreateEvent = async () => {
+  if (!event || !start || !end || !selectedCalendarId) {
+    Alert.alert("Error", "Please fill in all required fields");
+    return;
+  }
+
+  try {
+    const eventDetails = {
+      title: event,
+      startDate: new Date(start),
+      endDate: new Date(end),
+      location: location,
+      notes: description,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      calendarId: selectedCalendarId,
+    };
+
+    const eventId = await Calendar.createEventAsync(selectedCalendarId, eventDetails);
     
-   
-    
+    if (eventId) {
+      Alert.alert(
+        "Success",
+        "Event has been added to your calendar!",
+        [{ text: "OK", onPress: () => {
+          // Clear form after successful creation
+          setEvent("");
+          setStart(null);
+          setEnd(null);
+          setLocation("");
+          setDescription("");
+        }}]
+      );
+    }
+  } catch (error) {
+    Alert.alert("Error", "Failed to create event: " + error.message);
+  }
+};
 
-
-
+const dataToEncode = `Event: ${event}\n Starting Time: ${start}\n End: ${end}\n Location: ${location}\n Description: ${description}`;
+  
   const handleGenerateQRCode = async () => {
     if (!inputValue) {
-      return alert("Please enter text to generate a QR Code.");
+      return alert("Please enter url to generate a QR Code.");
     }
 
     setIsSubmittingQR(true);
@@ -67,7 +110,7 @@ const Generate = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          data: inputValue, // The data to encode
+          data: dataToEncode, // The data to encode
         }),
       });
   
@@ -90,45 +133,6 @@ const Generate = () => {
   };
   
   
-
-  const handleGenerateBarcode = async () => {
-    if (!inputBar) {
-      return alert("Please enter text to generate a Barcode.");
-    }
-  
-    setIsSubmitting(true); // Show loading state
-    try {
-      const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: inputBar, // The data to encode into a barcode
-          type: barcodeType, // The selected barcode type (e.g., ean13, code128, etc.)
-        }),
-      });
-  
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer(); // Get the image data as an ArrayBuffer
-        const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`; // Convert ArrayBuffer to Base64
-  
-        setQRCodeImage(base64Barcode); // Reuse the modal and display barcode image
-        setQRCodeModalVisible(true); // Open the modal
-      } else {
-        const errorResponse = await response.json();
-        alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      console.error("Error generating Barcode:", error);
-      alert("An error occurred while generating the Barcode. Please try again.");
-    } finally {
-      setIsSubmitting(false); // Hide loading state
-    }
-  };
-  
-
- 
 
   const handleDownloadQRCode = async () => {
     if (!qrCodeImage) {
@@ -212,27 +216,113 @@ const Generate = () => {
       >
         {/* Header */}
         <View className="items-center mb-8 mt-10">
-        <Text className="text-white text-lg text-center mt-2 font-plight">
-            Create QR Codes  and Barcode easily by providing the required details.
+        <Text className="text-secondary text-3xl font-pbold text-center">
+            QR Code generator
           </Text>
-          <Text className="text-secondary text-3xl font-pbold text-center">
-            QR Code
+        <Text className="text-white text-lg text-center mt-2 font-pbold">
+            Create QR Code of a Calendar.
           </Text>
           
           
+          <Image
+            source={icons.calendar}
+            style={{ width: 80, height: 80 }}
+            className="mt-4"
+            tintColor={"#fff"}
+            resizeMode="contain"
+            >
+          </Image>
         </View>
 
-        {/* Input Field */}
-        <View className="bg-white rounded-lg p-4 shadow-md mb-6">
-          
-          <TextInput
-            placeholder="Enter text or data to encode"
+        {/* Event */}
+    <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
+           <TextInput
+            placeholder="Event name"
             placeholderTextColor="#888"
-            value={inputValue}
-            onChangeText={setInputValue}
-            className="text-black text-lg p-2 rounded border border-gray-300 font-pregular"
+            value={event}
+            onChangeText={setEvent}
+            className="text-black text-lg p-2 font-pregular"
+            
+            
           />
-        </View>
+      </View>
+   {/* Start */}
+      <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
+           <TextInput
+            placeholder="Starting Time"
+            placeholderTextColor="#888"
+            value={start}
+            onChangeText={setStart}
+            className="text-black text-lg p-2 font-pregular"
+           
+            
+            
+          />
+      </View>
+  {/* End */}
+      <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
+           <TextInput
+            placeholder="Ending Time"
+            placeholderTextColor="#888"
+            value={end}
+            onChangeText={setEnd}
+            className="text-black text-lg p-2 font-pregular"
+            
+            
+          />
+      </View>
+
+     
+      <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-4">
+        <Picker
+          selectedValue={selectedCalendarId}
+          onValueChange={(itemValue) => setSelectedCalendarId(itemValue)}
+          style={{ color: '#000' }}
+        >
+          <Picker.Item label="Select Calendar" value={null} />
+          {calendars.map((calendar) => (
+            <Picker.Item
+              key={calendar.id}
+              label={calendar.title}
+              value={calendar.id}
+            />
+          ))}
+        </Picker>
+      </View>
+
+      // Add a new button for creating the calendar event (add before or after QR code generation)
+      <View className="mb-6">
+        <CustomButton
+          title="Add to Calendar"
+          handlePress={handleCreateEvent}
+          containerStyles="bg-secondary"
+          textStyles="text-primary"
+        />
+      </View>
+
+      {/* Location */}
+    <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
+           <TextInput
+            placeholder="Location"
+            placeholderTextColor="#888"
+            value={location}
+            onChangeText={setLocation}
+            className="text-black text-lg p-2 font-pregular"
+            
+          />
+      </View>
+
+      {/* Description */}
+    <View className="border-2 border-secondary rounded-lg p-2 bg-white flex-1 mb-6">
+           <TextInput
+            placeholder="Description"
+            placeholderTextColor="#888"
+            value={description}
+            onChangeText={setDescription}
+            className="text-black text-lg p-2 font-pregular"
+            inputMode="url"
+          />
+      </View>
 
         {/* Generate QR Code */}
         <View className="mb-6">
@@ -245,49 +335,7 @@ const Generate = () => {
           />
         </View>
 
-        {/* Generate Barcode */}
-        <View className="mb-6">
-        <Text className="text-secondary text-3xl font-pbold text-center">
-            BAR Code
-        </Text>
-        
-  <Text className="text-white text-lg mb-2 font-pregular">Select Barcode Type:</Text>
-  
-  {/* Barcode Type Picker */}
-  <View className="bg-white rounded-lg shadow-md">
-    <Picker
-      selectedValue={barcodeType}
-      onValueChange={(itemValue) => setBarcodeType(itemValue)}
-      style={{ height: 50, color: "#000", fontFamily: "pregular" }}
-    >
-      {barcodeOptions.map((option) => (
-        <Picker.Item key={option.value} label={option.label} value={option.value} />
-      ))}
-    </Picker>
-  </View>
-
-  {/* Input Field for Barcode Digits */}
-  <View className="bg-white rounded-lg shadow-md mt-4 p-4">
-    <TextInput
-      placeholder={`Enter ${barcodeType.toUpperCase()} digits`}
-      placeholderTextColor="#888"
-      value={inputBar}
-      onChangeText={setInputBar}
-      keyboardType="numeric" // Numeric keyboard for entering digits
-      maxLength={barcodeType === "ean13" ? 13 : barcodeType== "ean8"? 8: 10} // Example: limit length based on type
-      className="text-black text-lg p-2 rounded border border-gray-300 font-pregular"
-    />
-  </View>
-
-  {/* Generate Barcode Button */}
-  <CustomButton
-    title="Generate Barcode"
-    handlePress={handleGenerateBarcode}
-    containerStyles="bg-secondary mt-4"
-    textStyles="text-primary"
-    isLoading={isSubmitting}
-  />
-</View>
+      
 
 
         {/* Footer */}
@@ -355,4 +403,4 @@ const Generate = () => {
   );
 };
 
-export default Generate;
+export default CalendarPage;

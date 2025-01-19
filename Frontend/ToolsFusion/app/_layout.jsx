@@ -41,6 +41,7 @@ useEffect( ()=>{
 if(!fontsLoaded && !error) return null;
 
   return (
+    <>  
     <Stack>
       <Stack.Screen name="index" options = {{headerShown: false}} />
 
@@ -48,8 +49,17 @@ if(!fontsLoaded && !error) return null;
 
       <Stack.Screen name="(scan)" options = {{headerShown: false}} />
 
+      <Stack.Screen name="(set)" options = {{headerShown: false}} />
+
+      <Stack.Screen name="(pages)" options = {{headerShown: false}} />
+
+      <Stack.Screen name="(generate)" options = {{headerShown: false}} />
+
+      
+
      
     </Stack>
+    </>
   )
 }
 
