@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView, TouchableOpacity, Image, Modal, Alert, Platform } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TouchableOpacity,
+  Image,
+  Modal,
+  Alert,
+  ScrollView,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
@@ -8,12 +17,16 @@ import * as Linking from "expo-linking";
 import axios from "axios";
 import CustomButton from "../../components/CustomButton";
 import { Share } from "react-native";
+import icons from "../../constants/icons";
+import { Link } from "expo-router";
 
 const UploadedScan = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [scanResult, setScanResult] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -72,97 +85,88 @@ const UploadedScan = () => {
 
   const handleAction = async (action) => {
     if (!scanResult?.data) return;
-  
+
     const data = scanResult.data;
-  
+
     switch (action) {
       case "open":
         try {
           await Linking.openURL(data);
-          Alert.alert("Success", "URL opened successfully.");
         } catch (err) {
-          console.error("Failed to open URL:", err);
           Alert.alert("Error", "Failed to open the URL.");
         }
         break;
-  
+
       case "copy":
         try {
           await Clipboard.setStringAsync(data);
           Alert.alert("Copied", "Text copied to clipboard.");
         } catch (error) {
-          console.error("Failed to copy:", error);
           Alert.alert("Error", "Failed to copy text.");
         }
         break;
-  
-        case "share":
-            try {
-              const result = await Share.share({
-                message: `Here's the link: ${data}`,
-                title: "Share QR Code Link",
-              });
-      
-              if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                  console.log("Shared with activity type: ", result.activityType);
-                } else {
-                  console.log("Link shared successfully.");
-                }
-              } else if (result.action === Share.dismissedAction) {
-                console.log("Share dismissed.");
-              }
-            } catch (error) {
-              console.error("Error sharing link:", error);
-              Alert.alert("Error", "Failed to share the link. Please try again.");
-            }
 
+      case "share":
+        try {
+          const result = await Share.share({
+            message: `Here's the link: ${data}`,
+          });
+
+          if (result.action === Share.sharedAction) {
+            Alert.alert("Success", "Link shared successfully.");
+          }
+        } catch (error) {
+          Alert.alert("Error", "Failed to share the link.");
+        }
         break;
-  
+
       case "search":
         const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(data)}`;
         try {
           await Linking.openURL(searchUrl);
-          Alert.alert("Success", "Search opened successfully.");
         } catch (error) {
-          console.error("Failed to open search:", error);
           Alert.alert("Error", "Failed to open the search.");
         }
         break;
-  
+
       default:
         Alert.alert("Error", "Invalid action.");
     }
   };
-  
 
   return (
     <SafeAreaView className="flex-1 bg-primary items-center justify-center p-4">
-      <Text className="text-white text-xl mb-4">Upload & Scan QR/Barcode</Text>
+      <View className="mt-12">
+        <Text className="text-white text-xl mb-4 font-pregular">Upload & Scan QR/Barcode</Text>
 
-      <CustomButton
-        title="Select Image"
-        handlePress={pickImage}
-        containerStyles="bg-secondary"
-        textStyles="text-primary"
-      />
-
-      {selectedImage && (
-        <Image
-          source={{ uri: selectedImage }}
-          style={{ width: 200, height: 200, marginVertical: 20 }}
-          resizeMode="contain"
+        
+       
+        <CustomButton
+          title="Select Image"
+          handlePress={pickImage}
+          containerStyles="bg-secondary mt-4 mb-6"
+          textStyles="text-primary"
+          
         />
-      )}
 
-      <CustomButton
-        title="Scan Image"
-        handlePress={handleScanImage}
-        containerStyles="bg-secondary"
-        textStyles="text-primary"
-        isLoading={isUploading}
-      />
+        {selectedImage && (
+          <Image
+            source={{ uri: selectedImage }}
+            style={{ width: 200, height: 200, marginVertical: 20 }}
+            resizeMode="contain"
+          />
+        )}
 
+        <CustomButton
+          title="Scan Image"
+          handlePress={handleScanImage}
+          containerStyles="bg-secondary"
+          textStyles="text-primary"
+          isLoading={isUploading}
+        />
+      </View>
+
+      {/* Modal for Scan Result */}
       <Modal
         visible={modalVisible}
         transparent
@@ -174,8 +178,10 @@ const UploadedScan = () => {
             <Text className="text-black text-lg font-bold mb-4">Scan Result</Text>
             {scanResult?.data ? (
               <>
-                <Text className="text-black text-base mb-4">{scanResult.data}</Text>
-                <View className="flex-row justify-between mt-4">
+                <ScrollView className="h-20 mb-4">
+                  <Text className="text-black text-base">{scanResult.data}</Text>
+                </ScrollView>
+                <View className="flex-row justify-around mt-4">
                   <CustomButton title="Open Link" handlePress={() => handleAction("open")} />
                   <CustomButton title="Copy" handlePress={() => handleAction("copy")} />
                   <CustomButton title="Share" handlePress={() => handleAction("share")} />
@@ -185,10 +191,25 @@ const UploadedScan = () => {
             ) : (
               <Text className="text-black">No QR Code or Barcode found.</Text>
             )}
-            <CustomButton title="Close" handlePress={() => setModalVisible(false)} />
+            <CustomButton
+              title="Close"
+              handlePress={() => setModalVisible(false)}
+              containerStyles="bg-secondary mt-4"
+              textStyles="text-primary"
+            />
           </View>
         </View>
       </Modal>
+
+     {/* Footer */}
+            <View className="items-center mt-auto mb-2">
+            <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+                QR & Bar Pro
+              </Text>
+              <Text className="text-white text-sm font-plight">
+                Powered by Buda Technologies
+              </Text>
+            </View>
     </SafeAreaView>
   );
 };

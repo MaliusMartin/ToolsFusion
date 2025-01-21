@@ -1,16 +1,20 @@
 import React from "react";
-import { View, Text, Image, SafeAreaView, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { View, Text, Image, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import { router, Link } from "expo-router";
 import icons from "../../constants/icons";
-import CustomButton from "../../components/CustomButton";
+
 
 const Home = () => {
-  const actions = [
-    { title: "Scan QR Code", route: "/(tabs)/scan" },
-    { title: "Scan Barcode", route: "/(scan)/uploaded" },
-    { title: "Generate QR Code", route: "/(tabs)/generate" },
-    { title: "Generate Barcode", route:"/(generate)/gindex" },
-  ];
+ 
+
+  const options = [
+      { label: "Camera to scan", path: "(tabs)/scan", image: icons.camera },
+      { label: "Upload to scan", path: "(scan)/uploaded", image: icons.gallery },
+      { label: "Create QR Code", path: "(generate)/gindex", image: icons.scan },
+      { label: "Create Barcode", path: "(generate)/barcode", image: icons.barcode },
+      
+    ];
+  
 
   return (
     <SafeAreaView className="bg-primary flex-1">
@@ -27,33 +31,47 @@ const Home = () => {
             resizeMode="contain"
             alt="App Logo"
           />
-          <Text className="text-secondary text-3xl font-pbold mt-2 text-center">
-            QR & Bar Pro
+         
+        </View>
+
+        <Text className="text-white  text-2xl font-pbold mt-2 text-center mb-3">
+            QR Code and Barcode {"\n"} Scan and generator
           </Text>
-        </View>
 
-        {/* Main Actions */}
-        <View>
-          {actions.map((action, index) => (
-            <CustomButton
-              key={index}
-              title={action.title}
-              handlePress={() => router.push(action.route)}
-              containerStyles="bg-secondary mb-3"
-              textStyles="text-primary"
-            />
-          ))}
-        </View>
 
+       <View className="flex-row flex-wrap justify-between">
+                 {options.map((option, index) => (
+                   <Link key={index} href={option.path} asChild>
+                     <TouchableOpacity
+                       className="w-[45%] bg-secondary p-4 mb-4 rounded-lg items-center justify-center ml-4"
+                     >
+                       
+                        <Image
+                          source={option.image}
+                          style={{ width: 80, height: 80 }}
+                          className="mt-4"
+                          tintColor={"#fff"}
+                          resizeMode="contain"
+                                            >
+                                          </Image>
+                       <Text className="text-white font-pbold">{option.label}</Text>
+                     </TouchableOpacity>
+                   </Link>
+                 ))}
+               </View>
         {/* Info Section */}
         <View className="mt-10">
           <Text className="text-white text-center text-lg font-plight">
             Simplify your daily tasks with our advanced QR and Barcode tools.
           </Text>
+         
         </View>
 
         {/* Footer */}
         <View className="items-center mt-auto mb-2">
+        <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+            QR & Bar Pro
+          </Text>
           <Text className="text-white text-sm font-plight">
             Powered by Buda Technologies
           </Text>

@@ -34,7 +34,7 @@ const Generate = () => {
 
   const handleGenerateQRCode = async () => {
     if (!inputValue) {
-      return alert("Please enter url to generate a QR Code.");
+      return alert("Please enter anything in text field to generate a QR Code.");
     }
 
     setIsSubmittingQR(true);
@@ -198,9 +198,12 @@ const Generate = () => {
       
 
 
-        {/* Footer */}
-        <View className="items-center mt-auto mb-4">
-          <Text className="text-white text-xs font-plight">
+         {/* Footer */}
+         <View className="items-center mt-auto mb-2">
+        <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+            QR & Bar Pro
+          </Text>
+          <Text className="text-white text-sm font-plight">
             Powered by Buda Technologies
           </Text>
         </View>
@@ -259,6 +262,8 @@ const Generate = () => {
     </View>
   </Pressable>
 </Modal>
+
+
     </SafeAreaView>
   );
 };

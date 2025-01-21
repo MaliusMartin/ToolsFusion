@@ -30,7 +30,7 @@ const Generate = () => {
 
   const handleGenerateQRCode = async () => {
     if (!email && !subject && !message) {
-      return alert("Please enter a phone number or a message to generate a QR Code.");
+      return alert("Please enter an email, subject and a message to generate a QR Code.");
     }
 
     const dataToEncode = `Email: ${email}\n Subject: ${subject}\n Message: ${message}`;
@@ -170,7 +170,7 @@ const Generate = () => {
          {/* Body Input */}
          <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
           <TextInput
-            placeholder="Body"
+            placeholder="Subject"
             placeholderTextColor="#888"
             value={subject}
             onChangeText={setSubject}
@@ -182,7 +182,7 @@ const Generate = () => {
         {/* Text Message Input */}
         <View className="border-2 border-secondary rounded-lg p-2 bg-white flex-1 mb-6">
           <TextInput
-            placeholder="Write your message here..."
+            placeholder="Body, Write your message here..."
             value={message}
             onChangeText={setMessage}
             multiline={true}
@@ -204,12 +204,15 @@ const Generate = () => {
           />
         </View>
 
-        {/* Footer */}
-        <View className="items-center mt-auto mb-4">
-          <Text className="text-white text-xs font-plight">
-            Powered by Buda Technologies
-          </Text>
-        </View>
+         {/* Footer */}
+         <View className="items-center mt-auto mb-2">
+              <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+                  QR & Bar Pro
+                </Text>
+                <Text className="text-white text-sm font-plight">
+                  Powered by Buda Technologies
+                </Text>
+              </View>
       </ScrollView>
 
       {/* QR Code Modal */}
@@ -261,6 +264,8 @@ const Generate = () => {
           </View>
         </Pressable>
       </Modal>
+
+      
     </SafeAreaView>
   );
 };

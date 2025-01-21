@@ -175,12 +175,15 @@ const Generate = () => {
           />
         </View>
 
-        {/* Footer */}
-        <View className="items-center mt-auto mb-4">
-          <Text className="text-white text-xs font-plight">
-            Powered by Buda Technologies
-          </Text>
-        </View>
+         {/* Footer */}
+         <View className="items-center mt-auto mb-2">
+              <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+                  QR & Bar Pro
+                </Text>
+                <Text className="text-white text-sm font-plight">
+                  Powered by Buda Technologies
+                </Text>
+              </View>
       </ScrollView>
 
       {/* QR Code Modal */}
@@ -232,6 +235,7 @@ const Generate = () => {
           </View>
         </Pressable>
       </Modal>
+      
     </SafeAreaView>
   );
 };

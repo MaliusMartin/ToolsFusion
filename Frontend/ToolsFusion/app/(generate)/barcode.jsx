@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import axios from "axios";
 import * as Print from "expo-print";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
@@ -22,52 +21,78 @@ import {
 
 
 const Generate = () => {
-
-  const [inputValue, setInputValue] = useState("");
+  const [barcodeType, setBarcodeType] = useState("ean13");
+  const [inputBar, setInputBar] = useState("");
   const [qrCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [qrCodeImage, setQRCodeImage] = useState(null);
-  const [isSubmittingQR, setIsSubmittingQR] = useState(false);
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const barcodeOptions = [
+    { value: "aztech", label: "AZTEC" },
+    { value: "ean13", label: "EAN-13" },
+    { value: "ean8", label: "EAN-8" },
+    { value: "upc_a", label: "UPC-A" },
+    { value: "upc_e", label: "UPC-E" },
+    { value: "code39", label: "Code 39" },
+    { value: "code93", label: "Code 93" },
+    { value: "code128", label: "Code 128" },
+    { value: "itf", label: "ITF" },
+    { value: "isbn10", label: "ISBN-10" },
+    { value: "isbn13", label: "ISBN-13" },
+    { value: "issn", label: "ISSN" },
+    { value: "msi", label: "MSI" },
+    { value: "pharmacode", label: "Pharmacode" },
+    { value: "codabar", label: "Codabar" },
+    { value: "data_matrix", label: "Data Matrix" },
+  ];
+    
+   
+    
+
+
 
  
   
+  
 
-  const handleGenerateQRCode = async () => {
-    if (!inputValue) {
-      return alert("Please enter url to generate a QR Code.");
+  const handleGenerateBarcode = async () => {
+    if (!inputBar) {
+      return alert("Please enter text to generate a Barcode.");
     }
-
-    setIsSubmittingQR(true);
+  
+    setIsSubmitting(true); // Show loading state
     try {
-      const response = await fetch("https://toolsfusion.onrender.com/generate/", {
+      const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          data: inputValue, // The data to encode
+          data: inputBar, // The data to encode into a barcode
+          type: barcodeType, // The selected barcode type (e.g., ean13, code128, etc.)
         }),
       });
   
       if (response.ok) {
         const arrayBuffer = await response.arrayBuffer(); // Get the image data as an ArrayBuffer
-        const base64Image = `data:image/png;base64,${encode(arrayBuffer)}`; // Convert ArrayBuffer to Base64 string
+        const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`; // Convert ArrayBuffer to Base64
   
-        setQRCodeImage(base64Image); // Set the modal image as a base64 string
+        setQRCodeImage(base64Barcode); // Reuse the modal and display barcode image
         setQRCodeModalVisible(true); // Open the modal
       } else {
         const errorResponse = await response.json();
-        alert(`Failed to generate QR Code: ${errorResponse.error || "Unknown error"}`);
+        alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
       }
     } catch (error) {
-      alert(`An error occurred: ${error.message}`);
-    }
-    finally {
-      setIsSubmittingQR(false);
+      console.error("Error generating Barcode:", error);
+      alert("An error occurred while generating the Barcode. Please try again.");
+    } finally {
+      setIsSubmitting(false); // Hide loading state
     }
   };
   
-  
+
+ 
 
   const handleDownloadQRCode = async () => {
     if (!qrCodeImage) {
@@ -152,54 +177,70 @@ const Generate = () => {
         {/* Header */}
         <View className="items-center mb-8 mt-10">
         <Text className="text-secondary text-3xl font-pbold text-center">
-            QR Code generator
-          </Text>
-        <Text className="text-white text-lg text-center mt-2 font-pbold">
-            Create QR Code of a url link easily.
+            Barcode
+        </Text>
+         <Image
+                    source={icons.barcode}
+                    style={{ width: 80, height: 80 }}
+                    className="mt-4"
+                    tintColor={"#fff"}
+                    resizeMode="contain"
+                    >
+                  </Image>
+        <Text className="text-white text-lg text-center mt-2 font-plight">
+            Create  Barcode easily by providing the required details.
           </Text>
           
           
-          <Image
-                      source={icons.url}
-                      style={{ width: 80, height: 80 }}
-                      className="mt-4"
-                      tintColor={"#fff"}
-                      resizeMode="contain"
-                      >
-          </Image>
         </View>
 
-        {/* Input Field */}
-    <View className="border-2 border-secondary rounded-lg p-2 bg-white mb-6">
-           <TextInput
-            placeholder="Enter url data to encode"
-            placeholderTextColor="#888"
-            value={inputValue}
-            onChangeText={setInputValue}
-            className="text-black text-lg p-2 font-pregular"
-            inputMode="url"
-          />
-        
-        
-        
-        </View>
+    
 
-        {/* Generate QR Code */}
+        {/* Generate Barcode */}
         <View className="mb-6">
-          <CustomButton
-            title="Generate QR Code"
-            handlePress={handleGenerateQRCode}
-            containerStyles="bg-secondary"
-            textStyles="text-primary"
-            isLoading={isSubmittingQR}
-          />
-        </View>
+       
+        
+  <Text className="text-white text-lg mb-2 font-pregular">Select Barcode Type:</Text>
+  
+  {/* Barcode Type Picker */}
+  <View className="bg-white rounded-lg shadow-md">
+    <Picker
+      selectedValue={barcodeType}
+      onValueChange={(itemValue) => setBarcodeType(itemValue)}
+      style={{ height: 50, color: "#000", fontFamily: "pregular" }}
+    >
+      {barcodeOptions.map((option) => (
+        <Picker.Item key={option.value} label={option.label} value={option.value} />
+      ))}
+    </Picker>
+  </View>
 
-      
+  {/* Input Field for Barcode Digits */}
+  <View className="bg-white rounded-lg shadow-md mt-4 p-4">
+    <TextInput
+      placeholder={`Enter ${barcodeType.toUpperCase()} digits`}
+      placeholderTextColor="#888"
+      value={inputBar}
+      onChangeText={setInputBar}
+      keyboardType="numeric" // Numeric keyboard for entering digits
+      maxLength={barcodeType === "ean13" ? 13 : barcodeType== "ean8"? 8: 10} // Example: limit length based on type
+      className="text-black text-lg p-2 rounded border border-gray-300 font-pregular"
+    />
+  </View>
+
+  {/* Generate Barcode Button */}
+  <CustomButton
+    title="Generate Barcode"
+    handlePress={handleGenerateBarcode}
+    containerStyles="bg-secondary mt-4"
+    textStyles="text-primary"
+    isLoading={isSubmitting}
+  />
+</View>
 
 
-       {/* Footer */}
-              <View className="items-center mt-auto mb-2">
+        {/* Footer */}
+        <View className="items-center mt-auto mb-2">
               <Text className="text-secondary text-sm font-pbold mt-2 text-center">
                   QR & Bar Pro
                 </Text>
@@ -262,8 +303,6 @@ const Generate = () => {
     </View>
   </Pressable>
 </Modal>
-
-
     </SafeAreaView>
   );
 };

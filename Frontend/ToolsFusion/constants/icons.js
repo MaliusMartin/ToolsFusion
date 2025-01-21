@@ -23,6 +23,7 @@ import email from "../assets/icons/email.png";
 import contact from "../assets/icons/contact.png";
 import text from "../assets/icons/text.png";
 import url from "../assets/icons/url.png";
+import barcode from "../assets/icons/barcode.png";
 
 
 
@@ -52,6 +53,8 @@ export default {
   contact,
   text,
   url,
+  barcode,
+  scan
 
 
 

@@ -51,8 +51,6 @@ if(!fontsLoaded && !error) return null;
 
       <Stack.Screen name="(set)" options = {{headerShown: false}} />
 
-      <Stack.Screen name="(pages)" options = {{headerShown: false}} />
-
       <Stack.Screen name="(generate)" options = {{headerShown: false}} />
 
       

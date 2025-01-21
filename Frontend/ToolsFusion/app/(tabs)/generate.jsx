@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import axios from "axios";
 import * as Print from "expo-print";
 import CustomButton from "../../components/CustomButton";
 import icons from "../../constants/icons";
 import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
-
+import {Link } from "expo-router"
 import { 
   View, 
   Text, 
@@ -29,6 +28,20 @@ const Generate = () => {
   const [qrCodeImage, setQRCodeImage] = useState(null);
   const [isSubmittingQR, setIsSubmittingQR] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const options = [
+    { label: "URL", path: "(generate)/url", image: icons.url },
+    { label: "Text", path: "(generate)/text", image: icons.text },
+    { label: "Contact", path: "(generate)/contact", image: icons.contact },
+    { label: "Email", path: "(generate)/email", image: icons.email },
+    { label: "SMS", path: "(generate)/sms", image: icons.sms },
+    { label: "Geo", path: "(generate)/geo", image: icons.location },
+    { label: "Phone", path: "(generate)/phone", image: icons.phone },
+    { label: "Calendar", path: "(generate)/calendar", image: icons.calendar },
+    { label: "WiFi", path: "(generate)/wifi", image: icons.wifi },
+    { label: "My QR", path: "(generate)/myqr", image: icons.myself },
+  ];
+  
 
   const barcodeOptions = [
     { value: "aztech", label: "AZTEC" },
@@ -216,7 +229,7 @@ const Generate = () => {
             Create QR Codes  and Barcode easily by providing the required details.
           </Text>
           <Text className="text-secondary text-3xl font-pbold text-center">
-            QR Code
+            QRcode
           </Text>
           
           
@@ -248,7 +261,7 @@ const Generate = () => {
         {/* Generate Barcode */}
         <View className="mb-6">
         <Text className="text-secondary text-3xl font-pbold text-center">
-            BAR Code
+            Barcode
         </Text>
         
   <Text className="text-white text-lg mb-2 font-pregular">Select Barcode Type:</Text>
@@ -289,13 +302,33 @@ const Generate = () => {
   />
 </View>
 
+<View className="flex-row flex-wrap justify-between">
+            {options.map((option, index) => (
+              <Link key={index} href={option.path} asChild>
+                <TouchableOpacity 
+                  className="w-[48%] bg-secondary p-4 mb-4 rounded-lg items-center justify-center"
+                >
+                  <Image 
+                    source={option.image} 
+                    className="w-12 h-12 mb-2"
+                    tintColor={"#fff"} 
+                  />
+                  <Text className="text-primary font-pbold">{option.label}</Text>
+                </TouchableOpacity>
+              </Link>
+            ))}
+          </View>
 
-        {/* Footer */}
-        <View className="items-center mt-auto mb-4">
-          <Text className="text-white text-xs font-plight">
-            Powered by Buda Technologies
-          </Text>
-        </View>
+
+       {/* Footer */}
+               <View className="items-center mt-auto mb-2">
+               <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+                   QR & Bar Pro
+                 </Text>
+                 <Text className="text-white text-sm font-plight">
+                   Powered by Buda Technologies
+                 </Text>
+               </View>
       </ScrollView>
 
       {/* QR Code Modal */}

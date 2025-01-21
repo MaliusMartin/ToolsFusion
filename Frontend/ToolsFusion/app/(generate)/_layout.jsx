@@ -29,6 +29,7 @@ const   GenerateLayout = () => {
 
     < Stack.Screen name="wifi" options = {{headerShown: false}} />
 
+    < Stack.Screen name="barcode" options = {{headerShown: false}} />
 
     
 
