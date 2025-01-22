@@ -2,14 +2,22 @@ from django.db import models
 
 class Barcode(models.Model):
     BARCODE_TYPES = [
+        ('aztec', 'AZTEC'),
         ('ean13', 'EAN-13'),
         ('ean8', 'EAN-8'),
         ('upca', 'UPC-A'),
+        ('upce', 'UPC-E'),
         ('code39', 'Code 39'),
+        ('code93', 'Code 93'),
         ('code128', 'Code 128'),
         ('itf', 'ITF'),
         ('isbn10', 'ISBN-10'),
         ('isbn13', 'ISBN-13'),
+        ('issn', 'ISSN'),
+        ('msi', 'MSI'),
+        ('pharmacode', 'Pharmacode'),
+        ('codabar', 'Codabar'),
+        ('data_matrix', 'Data Matrix'),
     ]
 
     data = models.CharField(max_length=255, help_text="Data encoded in the barcode")
