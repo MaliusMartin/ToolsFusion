@@ -31,6 +31,8 @@ const   GenerateLayout = () => {
 
     < Stack.Screen name="barcode" options = {{headerShown: false}} />
 
+    < Stack.Screen name="notes" options = {{headerShown: false}} />
+
     
 
     </Stack>

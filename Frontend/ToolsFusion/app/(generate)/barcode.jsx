@@ -6,6 +6,7 @@ import icons from "../../constants/icons";
 import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { 
   View, 
@@ -55,41 +56,65 @@ const Generate = () => {
   
   
 
-  const handleGenerateBarcode = async () => {
-    if (!inputBar) {
-      return alert("Please enter text to generate a Barcode.");
+ // Add this function to save generation history
+const saveGenerationHistory = async (data, type) => {
+  try {
+    const historyItem = {
+      type: "Generate",
+      data: data,
+      barcodeType: type,
+      timestamp: new Date().toLocaleString(),
+    };
+
+    const storedHistory = await AsyncStorage.getItem("history");
+    const history = storedHistory ? JSON.parse(storedHistory) : [];
+    history.unshift(historyItem); // Add new item at the beginning
+
+    await AsyncStorage.setItem("history", JSON.stringify(history));
+  } catch (error) {
+    console.error("Error saving generation history:", error);
+  }
+};
+
+// Call this function after generating the barcode
+const handleGenerateBarcode = async () => {
+  if (!inputBar) {
+    return alert("Please enter text to generate a Barcode.");
+  }
+
+  setIsSubmitting(true);
+  try {
+    const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: inputBar,
+        type: barcodeType,
+      }),
+    });
+
+    if (response.ok) {
+      const arrayBuffer = await response.arrayBuffer();
+      const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`;
+
+      setQRCodeImage(base64Barcode);
+      setQRCodeModalVisible(true);
+
+      // Save generation history
+      saveGenerationHistory(inputBar, barcodeType);
+    } else {
+      const errorResponse = await response.json();
+      alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
     }
-  
-    setIsSubmitting(true); // Show loading state
-    try {
-      const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: inputBar, // The data to encode into a barcode
-          type: barcodeType, // The selected barcode type (e.g., ean13, code128, etc.)
-        }),
-      });
-  
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer(); // Get the image data as an ArrayBuffer
-        const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`; // Convert ArrayBuffer to Base64
-  
-        setQRCodeImage(base64Barcode); // Reuse the modal and display barcode image
-        setQRCodeModalVisible(true); // Open the modal
-      } else {
-        const errorResponse = await response.json();
-        alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      console.error("Error generating Barcode:", error);
-      alert("An error occurred while generating the Barcode. Please try again.");
-    } finally {
-      setIsSubmitting(false); // Hide loading state
-    }
-  };
+  } catch (error) {
+    console.error("Error generating Barcode:", error);
+    alert("An error occurred while generating the Barcode. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   
 
  

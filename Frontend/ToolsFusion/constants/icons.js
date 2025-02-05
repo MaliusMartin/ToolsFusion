@@ -24,6 +24,11 @@ import contact from "../assets/icons/contact.png";
 import text from "../assets/icons/text.png";
 import url from "../assets/icons/url.png";
 import barcode from "../assets/icons/barcode.png";
+import notes from "../assets/icons/notes.png";
+import pedometer from "../assets/icons/pedometer.png";
+import delet from "../assets/icons/delet.png";
+
+
 
 
 
@@ -54,7 +59,10 @@ export default {
   text,
   url,
   barcode,
-  scan
+  scan,
+  notes,
+  pedometer,
+  delet
 
 
 

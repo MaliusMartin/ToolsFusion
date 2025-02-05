@@ -7,6 +7,7 @@ import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {Link } from "expo-router"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { 
   View, 
   Text, 
@@ -22,7 +23,6 @@ import {
 
 const Generate = () => {
   const [barcodeType, setBarcodeType] = useState("ean13");
-  const [inputValue, setInputValue] = useState("");
   const [inputBar, setInputBar] = useState("");
   const [qrCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [qrCodeImage, setQRCodeImage] = useState(null);
@@ -37,7 +37,7 @@ const Generate = () => {
     { label: "SMS", path: "(generate)/sms", image: icons.sms },
     { label: "Geo", path: "(generate)/geo", image: icons.location },
     { label: "Phone", path: "(generate)/phone", image: icons.phone },
-    { label: "Calendar", path: "(generate)/calendar", image: icons.calendar },
+    { label: "Events", path: "(generate)/calendar", image: icons.calendar },
     { label: "WiFi", path: "(generate)/wifi", image: icons.wifi },
     { label: "My QR", path: "(generate)/myqr", image: icons.myself },
   ];
@@ -104,41 +104,66 @@ const Generate = () => {
   
   
 
-  const handleGenerateBarcode = async () => {
-    if (!inputBar) {
-      return alert("Please enter text to generate a Barcode.");
+ 
+ // Add this function to save generation history
+const saveGenerationHistory = async (data, type) => {
+  try {
+    const historyItem = {
+      type: "Generate",
+      data: data,
+      barcodeType: type,
+      timestamp: new Date().toLocaleString(),
+    };
+
+    const storedHistory = await AsyncStorage.getItem("history");
+    const history = storedHistory ? JSON.parse(storedHistory) : [];
+    history.unshift(historyItem); // Add new item at the beginning
+
+    await AsyncStorage.setItem("history", JSON.stringify(history));
+  } catch (error) {
+    console.error("Error saving generation history:", error);
+  }
+};
+
+// Call this function after generating the barcode
+const handleGenerateBarcode = async () => {
+  if (!inputBar) {
+    return alert("Please enter text to generate a Barcode.");
+  }
+
+  setIsSubmitting(true);
+  try {
+    const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: inputBar,
+        type: barcodeType,
+      }),
+    });
+
+    if (response.ok) {
+      const arrayBuffer = await response.arrayBuffer();
+      const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`;
+
+      setQRCodeImage(base64Barcode);
+      setQRCodeModalVisible(true);
+
+      // Save generation history
+      saveGenerationHistory(inputBar, barcodeType);
+    } else {
+      const errorResponse = await response.json();
+      alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
     }
-  
-    setIsSubmitting(true); // Show loading state
-    try {
-      const response = await fetch("https://toolsfusion.onrender.com/generate-barcode/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: inputBar, // The data to encode into a barcode
-          type: barcodeType, // The selected barcode type (e.g., ean13, code128, etc.)
-        }),
-      });
-  
-      if (response.ok) {
-        const arrayBuffer = await response.arrayBuffer(); // Get the image data as an ArrayBuffer
-        const base64Barcode = `data:image/png;base64,${encode(arrayBuffer)}`; // Convert ArrayBuffer to Base64
-  
-        setQRCodeImage(base64Barcode); // Reuse the modal and display barcode image
-        setQRCodeModalVisible(true); // Open the modal
-      } else {
-        const errorResponse = await response.json();
-        alert(`Failed to generate Barcode: ${errorResponse.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      console.error("Error generating Barcode:", error);
-      alert("An error occurred while generating the Barcode. Please try again.");
-    } finally {
-      setIsSubmitting(false); // Hide loading state
-    }
-  };
+  } catch (error) {
+    console.error("Error generating Barcode:", error);
+    alert("An error occurred while generating the Barcode. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   
 
  
@@ -226,37 +251,12 @@ const Generate = () => {
         {/* Header */}
         <View className="items-center mb-8 mt-10">
         <Text className="text-white text-lg text-center mt-2 font-plight">
-            Create QR Codes  and Barcode easily by providing the required details.
+            Create Barcode & Qrcode easily
           </Text>
-          <Text className="text-secondary text-3xl font-pbold text-center">
-            QRcode
-          </Text>
-          
           
         </View>
 
-        {/* Input Field */}
-        <View className="bg-white rounded-lg p-4 shadow-md mb-6">
-          
-          <TextInput
-            placeholder="Enter text or data to encode"
-            placeholderTextColor="#888"
-            value={inputValue}
-            onChangeText={setInputValue}
-            className="text-black text-lg p-2 rounded border border-gray-300 font-pregular"
-          />
-        </View>
-
-        {/* Generate QR Code */}
-        <View className="mb-6">
-          <CustomButton
-            title="Generate QR Code"
-            handlePress={handleGenerateQRCode}
-            containerStyles="bg-secondary"
-            textStyles="text-primary"
-            isLoading={isSubmittingQR}
-          />
-        </View>
+      
 
         {/* Generate Barcode */}
         <View className="mb-6">
@@ -302,6 +302,9 @@ const Generate = () => {
   />
 </View>
 
+<Text className="text-secondary text-3xl font-pbold text-center mb-4">
+            QRcode
+          </Text>
 <View className="flex-row flex-wrap justify-between">
             {options.map((option, index) => (
               <Link key={index} href={option.path} asChild>

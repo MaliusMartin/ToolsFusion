@@ -38,7 +38,8 @@ const Settings = () => {
           <View className="bg-white/10 p-4 rounded-full mb-3">
             <Image 
               source={icons.settings} 
-              className="w-10 h-10" 
+              // className="w-10 h-10" 
+              style={{ width: 40, height: 40 }}
               resizeMode="contain" 
               tintColor={"#fff"}
             />

@@ -7,10 +7,9 @@ const SetLayout = () => {
   return (
     <>
     <Stack>
-  
-    < Stack.Screen name="scanhistory" options = {{headerShown: false}} />
 
-    < Stack.Screen name="generatedcodes" options = {{headerShown: false}} />
+    < Stack.Screen name="settings" options = {{headerShown: false}} />
+  
 
 
     </Stack>

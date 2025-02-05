@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ToolsFusion",
-    "slug": "ToolsFusion",
+    "slug": "qrcode-and-barcode-scanner-and-generator",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/ToolFusionLogo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ],
+      "package": "com.maliusmartin.qrcodeandbarcodescannerandgenerator"
     },
     "web": {
       "bundler": "metro",
@@ -50,6 +57,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1faf1ac0-8876-4fd4-885d-c3173b6d6719"
+      }
+    },
+    "owner": "maliusmartin"
   }
 }

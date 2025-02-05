@@ -134,12 +134,13 @@ const Generate = () => {
       >
         {/* Header */}
         <View className="items-center mb-8 mt-10">
+        <Text className="text-secondary text-3xl font-pbold text-center">
+            QR Code Generator
+          </Text>
           <Text className="text-white text-lg text-2xl text-center mt-2 font-pbold">
             Create QR Code for phone number
           </Text>
-          <Text className="text-secondary text-3xl font-pbold text-center">
-            QR Code Generator
-          </Text>
+          
 
           <Image
             source={icons.phone}

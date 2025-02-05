@@ -11,7 +11,7 @@ const options = [
   { label: "SMS", path: "(generate)/sms", image: icons.sms },
   { label: "Geo", path: "(generate)/geo", image: icons.location },
   { label: "Phone", path: "(generate)/phone", image: icons.phone },
-  { label: "Calendar", path: "(generate)/calendar", image: icons.calendar },
+  { label: "Events", path: "(generate)/calendar", image: icons.calendar },
   { label: "WiFi", path: "(generate)/wifi", image: icons.wifi },
   { label: "My QR", path: "(generate)/myqr", image: icons.myself },
 ];

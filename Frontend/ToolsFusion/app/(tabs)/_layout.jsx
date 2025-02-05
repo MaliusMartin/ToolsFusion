@@ -44,6 +44,7 @@ const Tabslayout = () => {
       >
 
        
+
 <Tabs.Screen
           name='home'
           options={{
@@ -62,23 +63,7 @@ const Tabslayout = () => {
         />
 
 
-
-        <Tabs.Screen
-          name='settings'
-          options={{
-            title: "Settings",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.settings}
-                color={color}
-                name="Settings"
-                focused={focused}
-
-              />
-            )
-          }}
-        />
+        
 
 
         <Tabs.Screen
@@ -98,6 +83,8 @@ const Tabslayout = () => {
         />
 
 
+
+
         <Tabs.Screen
           name='scan'
           options={{
@@ -114,10 +101,31 @@ const Tabslayout = () => {
           }}
         />
 
+        
 
 
 
-        <Tabs.Screen
+        
+
+
+<Tabs.Screen
+          name='history'
+          options={{
+            title: "History",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.pedometer}
+                color={color}
+                name="History"
+                focused={focused}
+              />
+            )
+          }}
+        />
+
+
+<Tabs.Screen
           name='more'
           options={{
             title: "More",
@@ -133,7 +141,6 @@ const Tabslayout = () => {
             )
           }}
         />
-
 
       </Tabs>
 

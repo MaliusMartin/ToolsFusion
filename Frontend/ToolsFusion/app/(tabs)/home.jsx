@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Image, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import React, {useState, useEffect} from "react";
+import { View, Text, Image, SafeAreaView, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { router, Link } from "expo-router";
 import icons from "../../constants/icons";
 
@@ -15,15 +15,21 @@ const Home = () => {
       
     ];
   
+    
+
+
+   
 
   return (
     <SafeAreaView className="bg-primary flex-1">
+      
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "space-evenly", padding: 20 }}
         showsVerticalScrollIndicator={false}
       >
+       
         {/* Header */}
-        <View className="items-center mb-8">
+        <View className="items-center mb-8 ml-12">
           <Image
             source={icons.logo}
             style={{ width: 300, height: 200 }}
@@ -31,15 +37,16 @@ const Home = () => {
             resizeMode="contain"
             alt="App Logo"
           />
-         
         </View>
 
-        <Text className="text-white  text-2xl font-pbold mt-2 text-center mb-3">
-            QR Code and Barcode {"\n"} Scan and generator
+        <Text className="text-white  text-xl font-pbold mt-2 text-center mb-3">
+        Scan and Generate {"\n"}QR Code and Barcode
           </Text>
 
 
-       <View className="flex-row flex-wrap justify-between">
+     <View className=" mr-4">
+
+     <View className="flex-row flex-wrap justify-between items-center">
                  {options.map((option, index) => (
                    <Link key={index} href={option.path} asChild>
                      <TouchableOpacity
@@ -58,7 +65,8 @@ const Home = () => {
                      </TouchableOpacity>
                    </Link>
                  ))}
-               </View>
+        </View>
+     </View>
         {/* Info Section */}
         <View className="mt-10">
           <Text className="text-white text-center text-lg font-plight">
@@ -67,15 +75,10 @@ const Home = () => {
          
         </View>
 
-        {/* Footer */}
-        <View className="items-center mt-auto mb-2">
-        <Text className="text-secondary text-sm font-pbold mt-2 text-center">
-            QR & Bar Pro
-          </Text>
-          <Text className="text-white text-sm font-plight">
-            Powered by Buda Technologies
-          </Text>
-        </View>
+
+
+
+       
       </ScrollView>
     </SafeAreaView>
   );

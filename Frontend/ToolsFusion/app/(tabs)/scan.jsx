@@ -1,13 +1,13 @@
 import { CameraView } from "expo-camera";
-import { Stack } from "expo-router";
 import {AppState,SafeAreaView,StyleSheet,View,Image,Text,TouchableOpacity, Linking,} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useState, useRef, useEffect } from "react";
 import * as Sharing from 'expo-sharing';
 import * as Clipboard from 'expo-clipboard'; 
+import { Share } from "react-native";
 import Overlay from "../(scan)/overlay";
 import icons from "../../constants/icons";
-import { Share } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Scan = () => {
   const qrLock = useRef(false);
@@ -77,6 +77,32 @@ const Scan = () => {
     }
   };
 
+  // Add this function to save scan history
+const saveScanHistory = async (data) => {
+  try {
+    const historyItem = {
+      type: "Scan",
+      data: data,
+      timestamp: new Date().toLocaleString(),
+    };
+
+    const storedHistory = await AsyncStorage.getItem("history");
+    const history = storedHistory ? JSON.parse(storedHistory) : [];
+    history.unshift(historyItem); // Add new item at the beginning
+
+    await AsyncStorage.setItem("history", JSON.stringify(history));
+  } catch (error) {
+    console.error("Error saving scan history:", error);
+  }
+};
+
+// Call this function after setting scannedData
+useEffect(() => {
+  if (scannedData) {
+    saveScanHistory(scannedData);
+  }
+}, [scannedData]);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" translucent backgroundColor="transparent" />
@@ -121,7 +147,7 @@ const Scan = () => {
                 onPress={() => handleOpenURL(scannedData)}
               >
                 <Image source={icons.link} style={{ width: 20, height: 20 }} />
-                <Text style={styles.buttonText}>Open</Text>
+                <Text style={styles.buttonText} className="pregular">Open</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -129,7 +155,7 @@ const Scan = () => {
                 onPress={() => handleShare(scannedData)}
               >
               <Image source={icons.share} style={{ width: 20, height: 20 }} />
-                <Text style={styles.buttonText}>Share</Text>
+                <Text style={styles.buttonText} className="pregular">Share</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -137,7 +163,7 @@ const Scan = () => {
                 onPress={() => handleCopy(scannedData)}
               >
                 <Image source={icons.copy} style={{ width: 20, height: 20 }} />
-                <Text style={styles.buttonText}>Copy</Text>
+                <Text style={styles.buttonText} className="pregular">Copy</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -145,7 +171,7 @@ const Scan = () => {
                 onPress={() => handleSearch(scannedData)}
               >
                 <Image source={icons.search} style={{ width: 20, height: 20 }} />
-                <Text style={styles.buttonText}>Search</Text>
+                <Text style={styles.buttonText} className="pregular">Search</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -156,7 +182,7 @@ const Scan = () => {
                 }}
               >
                 <Image source={icons.closed} style={{ width: 20, height: 20 }} />
-                <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
+                <Text style={[styles.buttonText, styles.cancelText]} className="pregular">Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
