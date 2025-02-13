@@ -7,6 +7,7 @@ import icons from "../../constants/icons";
 import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { 
   View, 
@@ -55,6 +56,7 @@ const Generate = () => {
   
         setQRCodeImage(base64Image); // Set the modal image as a base64 string
         setQRCodeModalVisible(true); // Open the modal
+        saveToHistory();
       } else {
         const errorResponse = await response.json();
         alert(`Failed to generate QR Code: ${errorResponse.error || "Unknown error"}`);
@@ -66,7 +68,32 @@ const Generate = () => {
       setIsSubmittingQR(false);
     }
   };
+
+
+    const saveToHistory = async () => {
+    const newEntry = {
+      type: "Text QR Code",
+      data: `Text: ${inputValue}`,
+      timestamp: new Date().toLocaleString(),
+    };
   
+    try {
+      // Retrieve existing history
+      const existingHistory = await AsyncStorage.getItem("history");
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+  
+      // Add new entry to the history
+      history.push(newEntry);
+      history.unshift(newEntry); // Add new item at the beginning
+  
+      // Save updated history back to AsyncStorage
+      await AsyncStorage.setItem("history", JSON.stringify(history));
+      alert("Saved to history!");
+    } catch (error) {
+      console.error("Error saving to history:", error);
+      alert("Failed to save history. Please try again.");
+    }
+  };
   
 
   const handleDownloadQRCode = async () => {

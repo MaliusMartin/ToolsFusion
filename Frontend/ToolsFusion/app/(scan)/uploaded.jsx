@@ -18,7 +18,7 @@ import axios from "axios";
 import CustomButton from "../../components/CustomButton";
 import { Share } from "react-native";
 import icons from "../../constants/icons";
-import { Link } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UploadedScan = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -26,7 +26,29 @@ const UploadedScan = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  // Function to save scan history to AsyncStorage
+  const saveGenerationHistory = async (data, type) => {
+    try {
+      const historyItem = {
+        type: type, // "QR Code" or "Barcode"
+        data: data, // Scanned data
+        timestamp: new Date().toLocaleString(), // Current timestamp
+      };
 
+      // Fetch existing history from AsyncStorage
+      const storedHistory = await AsyncStorage.getItem("history");
+      const history = storedHistory ? JSON.parse(storedHistory) : [];
+
+      // Add the new item to the beginning of the history array
+      history.unshift(historyItem);
+
+      // Save the updated history back to AsyncStorage
+      await AsyncStorage.setItem("history", JSON.stringify(history));
+    } catch (error) {
+      console.error("Error saving scan history:", error);
+      Alert.alert("Error", "Failed to save scan history.");
+    }
+  };
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -70,8 +92,18 @@ const UploadedScan = () => {
 
       if (response.data.success) {
         const { qr_code, barcode } = response.data.results;
-        setScanResult(qr_code || barcode || null);
-        setModalVisible(true);
+        const scannedData = qr_code || barcode || null;
+
+        if (scannedData) {
+          setScanResult(scannedData);
+          setModalVisible(true);
+
+          // Save the scan result to AsyncStorage
+          const barcodeType = qr_code ? "QR Code" : "Barcode";
+          await saveGenerationHistory(scannedData.data, barcodeType);
+        } else {
+          Alert.alert("Error", "No valid QR Code or Barcode found.");
+        }
       } else {
         Alert.alert("Error", "No valid QR Code or Barcode found.");
       }
@@ -137,17 +169,20 @@ const UploadedScan = () => {
   return (
     <SafeAreaView className="flex-1 bg-primary items-center justify-center p-4">
       <View className="mt-12">
-        <Text className="text-white text-xl mb-4 font-pregular">Upload & Scan QR/Barcode</Text>
-
-        
-       
-        <CustomButton
-          title="Select Image"
-          handlePress={pickImage}
-          containerStyles="bg-secondary mt-4 mb-6"
-          textStyles="text-primary"
-          
-        />
+        <View className="items-center justify-center">
+          <Text className="text-2xl font-pbold text-center text-white mb-2 mt-2">
+            Local storage
+          </Text>
+          <TouchableOpacity onPress={pickImage} className="mb-6">
+            <Image
+              source={icons.gallery}
+              style={{ width: 80, height: 80 }}
+              className="mt-4"
+              tintColor={"#fff"}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
 
         {selectedImage && (
           <Image
@@ -169,47 +204,105 @@ const UploadedScan = () => {
       {/* Modal for Scan Result */}
       <Modal
         visible={modalVisible}
-        transparent
+        transparent={true}
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <View className="bg-white rounded-lg p-6 w-11/12">
-            <Text className="text-black text-lg font-bold mb-4">Scan Result</Text>
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50"
+         style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <View className="bg-white rounded-lg p-6 w-11/12 max-w-md">
+            <Text className="text-black text-xl font-pbold mb-4 text-center">
+              Scan Result
+            </Text>
+
             {scanResult?.data ? (
               <>
-                <ScrollView className="h-20 mb-4">
-                  <Text className="text-black text-base">{scanResult.data}</Text>
+                <ScrollView className="max-h-40 mb-4">
+                  <Text className="text-black text-base font-pregular">
+                    {scanResult.data}
+                  </Text>
                 </ScrollView>
-                <View className="flex-row justify-around mt-4">
-                  <CustomButton title="Open Link" handlePress={() => handleAction("open")} />
-                  <CustomButton title="Copy" handlePress={() => handleAction("copy")} />
-                  <CustomButton title="Share" handlePress={() => handleAction("share")} />
-                  <CustomButton title="Search" handlePress={() => handleAction("search")} />
+
+                <View className="flex-row flex-wrap justify-between gap-4">
+                  <TouchableOpacity
+                    className="flex-1 items-center p-3 bg-secondary rounded-lg"
+                    onPress={() => handleAction("open")}
+                  >
+                    <Image
+                      source={icons.link}
+                      style={{ width: 24, height: 24 }}
+                      resizeMode="contain"
+                      tintColor="#fff"
+                    />
+                    <Text className="text-white font-pregular mt-2 text-sm">Open</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    className="flex-1 items-center p-3 bg-secondary rounded-lg"
+                    onPress={() => handleAction("copy")}
+                  >
+                    <Image
+                      source={icons.copy}
+                      style={{ width: 24, height: 24 }}
+                      resizeMode="contain"
+                      tintColor="#fff"
+                    />
+                    <Text className="text-white font-pregular mt-2 text-sm">Copy</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    className="flex-1 items-center p-3 bg-secondary rounded-lg"
+                    onPress={() => handleAction("share")}
+                  >
+                    <Image
+                      source={icons.share}
+                      style={{ width: 24, height: 24 }}
+                      resizeMode="contain"
+                      tintColor="#fff"
+                    />
+                    <Text className="text-white text-sm font-pregular mt-2">Share</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    className="flex-1 items-center p-3 bg-secondary rounded-lg"
+                    onPress={() => handleAction("search")}
+                  >
+                    <Image
+                      source={icons.search}
+                      style={{ width: 24, height: 24 }}
+                      resizeMode="contain"
+                      tintColor="#fff"
+                    />
+                    <Text className="text-white font-pregular mt-2 text-sm">Search</Text>
+                  </TouchableOpacity>
                 </View>
               </>
             ) : (
-              <Text className="text-black">No QR Code or Barcode found.</Text>
+              <Text className="text-black text-center font-pregular">
+                No QR Code or Barcode found.
+              </Text>
             )}
+
             <CustomButton
               title="Close"
               handlePress={() => setModalVisible(false)}
-              containerStyles="bg-secondary mt-4"
-              textStyles="text-primary"
+              textStyles="text-white"
             />
           </View>
+          
         </View>
       </Modal>
 
-     {/* Footer */}
-            <View className="items-center mt-auto mb-2">
-            <Text className="text-secondary text-sm font-pbold mt-2 text-center">
-                QR & Bar Pro
-              </Text>
-              <Text className="text-white text-sm font-plight">
-                Powered by Buda Technologies
-              </Text>
-            </View>
+      {/* Footer */}
+      <View className="items-center mt-auto mb-2">
+   
+        <Text className="text-secondary text-sm font-pbold mt-2 text-center">
+          QR & Bar Pro
+        </Text>
+        <Text className="text-white text-sm font-plight">
+          Powered by Buda Technologies
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };

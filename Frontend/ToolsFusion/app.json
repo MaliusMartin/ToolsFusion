@@ -30,6 +30,24 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-5649412992212534~9073429877",
+          "iosAppId": "ca-app-pub-5649412992212534~5847441243",
+          "userTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 52,
+            "targetSdkVersion": 52,
+            "buildToolsVersion": "52.0.31"
+          }
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -53,7 +71,17 @@
         {
           "calendarPermission": "Allow $(PRODUCT_NAME) to access your calendar."
         }
-      ]
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-5649412992212534~9073429877",
+          "iosAppId": "ca-app-pub-5649412992212534~5847441243",
+          "userTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
+          
+        }
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true

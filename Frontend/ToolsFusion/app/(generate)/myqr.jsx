@@ -17,6 +17,7 @@ import icons from "../../constants/icons";
 import { encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Generate = () => {
    // Individual state for each field
@@ -37,40 +38,68 @@ const Generate = () => {
     if (!fullName && !organizationName && !address && !email && !phoneNumber && !message) {
       return alert("Please fill in at least one field to generate a QR Code.");
     }
-
-    // Combine all input data
-    const dataToEncode = `Full Name: ${fullName}\n Organization: ${organizationName}\n Address: ${address}\n Email: ${email}\n Phone: ${phoneNumber}\n Message: ${message}`;
-
-
+  
+    const dataToEncode = `Full Name: ${fullName}\nOrganization: ${organizationName}\nAddress: ${address}\nEmail: ${email}\nPhone: ${phoneNumber}\nMessage: ${message}`;
     setIsSubmittingQR(true);
+  
     try {
       const response = await fetch("https://toolsfusion.onrender.com/generate/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          data: dataToEncode, // Combine phone and message for QR code
-        }),
+        body: JSON.stringify({ data: dataToEncode }),
       });
-
+  
       if (response.ok) {
         const arrayBuffer = await response.arrayBuffer();
         const base64Image = `data:image/png;base64,${encode(arrayBuffer)}`;
-
+  
         setQRCodeImage(base64Image);
         setQRCodeModalVisible(true);
+  
+        // Save the QR data to history
+        await saveToHistory();
       } else {
         const errorResponse = await response.json();
         alert(`Failed to generate QR Code: ${errorResponse.error || "Unknown error"}`);
       }
     } catch (error) {
+      console.error("Error generating QR Code:", error);
       alert(`An error occurred: ${error.message}`);
     } finally {
       setIsSubmittingQR(false);
     }
   };
+  
 
+  const saveToHistory = async () => {
+    const newEntry = {
+      type: "QR Code",
+      data: `Full Name: ${fullName}\nOrganization: ${organizationName}\nAddress: ${address}\nEmail: ${email}\nPhone: ${phoneNumber}\nMessage: ${message}`,
+      timestamp: new Date().toLocaleString(),
+    };
+  
+    try {
+      // Retrieve existing history
+      const existingHistory = await AsyncStorage.getItem("history");
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+  
+      // Add new entry to the history
+      history.push(newEntry);
+      history.unshift(newEntry); // Add new item at the beginning
+  
+      // Save updated history back to AsyncStorage
+      await AsyncStorage.setItem("history", JSON.stringify(history));
+      // alert("Saved to history!");
+    } catch (error) {
+      console.error("Error saving to history:", error);
+      alert("Failed to save history. Please try again.");
+    }
+  };
+  
+
+  
   const handleDownloadQRCode = async () => {
     if (!qrCodeImage) {
       return alert("No QR Code to download.");

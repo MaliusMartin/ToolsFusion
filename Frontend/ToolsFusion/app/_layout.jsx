@@ -1,15 +1,14 @@
+import { useEffect } from "react";
+import { Slot, SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
-import React, { useEffect } from 'react'
-import { Slot, SplashScreen, Stack } from 'expo-router'
-import "../global.css"
+import mobileAds from "react-native-google-mobile-ads";
+import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
 
-const Rootlayout = () => {
-
-const [fontsLoaded, error] = useFonts(
-  {  
-
+const RootLayout = () => {
+  // Load custom fonts
+  const [fontsLoaded, error] = useFonts({
     "Poppins-Black": require("../assets/fonts/Poppins-Black.ttf"),
     "Poppins-BlackItalic": require("../assets/fonts/Poppins-BlackItalic.ttf"),
     "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
@@ -28,38 +27,34 @@ const [fontsLoaded, error] = useFonts(
     "Poppins-SemiBoldItalic": require("../assets/fonts/Poppins-SemiBoldItalic.ttf"),
     "Poppins-Thin": require("../assets/fonts/Poppins-Thin.ttf"),
     "Poppins-ThinItalic": require("../assets/fonts/Poppins-ThinItalic.ttf"),
-    
+  });
 
-  }
-);
+  // Initialize AdMob & Handle Font Loading
+  useEffect(() => {
+    // Initialize AdMob once
+    mobileAds()
+      .initialize()
+      .then((adapterStatuses) => {
+        console.log("AdMob initialized:", adapterStatuses);
+      });
 
-useEffect( ()=>{
-  if(error) throw error;
-  if(fontsLoaded) SplashScreen.hideAsync();
-}, [fontsLoaded, error])
+    // Handle font loading & splash screen hiding
+    if (error) throw error;
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded, error]);
 
-if(!fontsLoaded && !error) return null;
+  // If fonts are not loaded, return null to prevent rendering
+  if (!fontsLoaded && !error) return null;
 
   return (
-    <>  
     <Stack>
-      <Stack.Screen name="index" options = {{headerShown: false}} />
-
-      <Stack.Screen name="(tabs)" options = {{headerShown: false}} />
-
-      <Stack.Screen name="(scan)" options = {{headerShown: false}} />
-
-      <Stack.Screen name="(set)" options = {{headerShown: false}} />
-
-      <Stack.Screen name="(generate)" options = {{headerShown: false}} />
-
-      
-
-     
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(scan)" options={{ headerShown: false }} />
+      <Stack.Screen name="(set)" options={{ headerShown: false }} />
+      <Stack.Screen name="(generate)" options={{ headerShown: false }} />
     </Stack>
-    </>
-  )
-}
+  );
+};
 
-export default Rootlayout 
-
+export default RootLayout;

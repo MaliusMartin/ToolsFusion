@@ -286,7 +286,7 @@ const handleGenerateBarcode = async () => {
       placeholderTextColor="#888"
       value={inputBar}
       onChangeText={setInputBar}
-      keyboardType="numeric" // Numeric keyboard for entering digits
+      // keyboardType="numeric" // Numeric keyboard for entering digits
       maxLength={barcodeType === "ean13" ? 13 : barcodeType== "ean8"? 8: 10} // Example: limit length based on type
       className="text-black text-lg p-2 rounded border border-gray-300 font-pregular"
     />

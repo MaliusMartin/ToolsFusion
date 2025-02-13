@@ -182,15 +182,6 @@ const History = () => {
         textStyles="text-white"
       />
 
-      {/* Footer */}
-      <View className="items-center mt-auto mb-2">
-        <Text className="text-secondary text-sm font-pbold mt-2 text-center">
-          QR & Bar Pro
-        </Text>
-        <Text className="text-white text-sm font-plight">
-          Powered by Buda Technologies
-        </Text>
-      </View>
     </SafeAreaView>
   );
 };

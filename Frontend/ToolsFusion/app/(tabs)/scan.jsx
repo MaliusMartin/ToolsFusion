@@ -1,5 +1,5 @@
 import { CameraView } from "expo-camera";
-import {AppState,SafeAreaView,StyleSheet,View,Image,Text,TouchableOpacity, Linking,} from "react-native";
+import {AppState,SafeAreaView,StyleSheet,View,Image,Text,TouchableOpacity, Linking, ActivityIndicator} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useState, useRef, useEffect } from "react";
 import * as Sharing from 'expo-sharing';
@@ -8,11 +8,15 @@ import { Share } from "react-native";
 import Overlay from "../(scan)/overlay";
 import icons from "../../constants/icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from 'expo-image-picker';
+
 
 const Scan = () => {
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
   const [scannedData, setScannedData] = useState(null);
+ 
+
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -29,6 +33,25 @@ const Scan = () => {
       subscription.remove();
     };
   }, []);
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert('Camera access is required to capture images.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
 
   const handleOpenURL = async (url) => {
     try {
@@ -77,6 +100,7 @@ const Scan = () => {
     }
   };
 
+  
   // Add this function to save scan history
 const saveScanHistory = async (data) => {
   try {
@@ -104,11 +128,12 @@ useEffect(() => {
 }, [scannedData]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} >
       <StatusBar style="light" translucent backgroundColor="transparent" />
       
       <CameraView
         style={StyleSheet.absoluteFillObject}
+       
         facing="back"
         onBarcodeScanned={({ data }) => { 
           if (data && !qrLock.current) { 

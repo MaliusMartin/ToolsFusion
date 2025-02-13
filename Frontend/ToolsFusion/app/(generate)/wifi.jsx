@@ -19,6 +19,7 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Picker } from "@react-native-picker/picker";
 import CheckBox from 'expo-checkbox';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const Wifi = () => {
@@ -68,6 +69,7 @@ const Wifi = () => {
 
         setQRCodeImage(base64Image);
         setQRCodeModalVisible(true);
+        saveToHistory();
       } else {
         const errorResponse = await response.json();
         alert(`Failed to generate QR Code: ${errorResponse.error || "Unknown error"}`);
@@ -85,6 +87,32 @@ const Wifi = () => {
       setPassword("");
     }
   };
+
+  const saveToHistory = async () => {
+    const newEntry = {
+      type: " WiFi QR Code",
+      data: `SSID | Network name: ${ssid}\n Password: ${password || "None"}\n Encryption: ${encryption || "None"}`,
+      timestamp: new Date().toLocaleString(),
+    };
+  
+    try {
+      // Retrieve existing history
+      const existingHistory = await AsyncStorage.getItem("history");
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+  
+      // Add new entry to the history
+      history.push(newEntry);
+      history.unshift(newEntry); // Add new item at the beginning
+  
+      // Save updated history back to AsyncStorage
+      await AsyncStorage.setItem("history", JSON.stringify(history));
+      alert("Saved to history!");
+    } catch (error) {
+      console.error("Error saving to history:", error);
+      alert("Failed to save history. Please try again.");
+    }
+  };
+  
 
   const handleDownloadQRCode = async () => {
      if (!qrCodeImage) {

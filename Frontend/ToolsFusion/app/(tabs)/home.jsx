@@ -4,6 +4,7 @@ import { router, Link } from "expo-router";
 import icons from "../../constants/icons";
 
 
+
 const Home = () => {
  
 
@@ -59,8 +60,8 @@ const Home = () => {
                           className="mt-4"
                           tintColor={"#fff"}
                           resizeMode="contain"
-                                            >
-                                          </Image>
+                                           />
+                                         
                        <Text className="text-white font-pbold">{option.label}</Text>
                      </TouchableOpacity>
                    </Link>

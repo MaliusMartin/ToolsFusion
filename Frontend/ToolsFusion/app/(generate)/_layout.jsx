@@ -9,11 +9,13 @@ const   GenerateLayout = () => {
     <Stack>
     < Stack.Screen name="gindex" options = {{headerShown: false}} />
 
-    < Stack.Screen name="calendar" options = {{headerShown: false}} />
+   
 
     < Stack.Screen name="contact" options = {{headerShown: false}} />
 
     < Stack.Screen name="email" options = {{headerShown: false}} />
+
+    < Stack.Screen name="events" options = {{headerShown: false}} />
 
     < Stack.Screen name="geo" options = {{headerShown: false}} />
 
