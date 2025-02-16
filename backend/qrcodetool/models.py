@@ -6,3 +6,4 @@ class QRC(models.Model):
 
     def __str__(self):
         return self.data[:100]
+
